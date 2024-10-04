@@ -1,97 +1,219 @@
-// import React, { useEffect, useState } from 'react';
-// import { getAllUsers, deleteUser } from '../../service/User'; // Đảm bảo rằng đường dẫn đúng
+import React, { useState, useEffect } from 'react';
+import { useUserContext } from '../../context/UserContext';
+import { IUser } from '../../interfaces/IUser';
+import '../../css/account-list.css'
 
-// const CustomerList = () => {
-//     const [customers, setCustomers] = useState([]);
-//     const [error, setError] = useState<string | null>(null);
+const AccountList = () => {
+    const { users, addUser, updateUser, deleteUser, loading, error } = useUserContext();
+    const [userData, setUserData] = useState<Omit<IUser, 'id'>>({
+        username: '',
+        password: '',
+        email: '',
+        address: '',
+        role: '1', // Mặc định là người dùng
+        phone: '',
+        dateCreated: new Date(),
+        IdVoucher: [],
+    });
+    const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
-//     // Hàm lấy danh sách khách hàng
-//     const fetchCustomers = async () => {
-//         try {
-//             const users = await getAllUsers(localStorage.getItem('token') || '');
-//             setCustomers(users);
-//         } catch (err) {
-//             setError('Lỗi khi lấy danh sách khách hàng');
-//         }
-//     };
+    useEffect(() => {
+        if (selectedUser) {
+            setUserData({
+                username: selectedUser.username,
+                password: '',
+                email: selectedUser.email,
+                address: selectedUser.address,
+                role: selectedUser.role,
+                phone: selectedUser.phone,
+                dateCreated: selectedUser.dateCreated,
+                IdVoucher: selectedUser.IdVoucher,
+            });
+        }
+    }, [selectedUser]);
 
-//     // Hàm xóa khách hàng
-//     const handleDelete = async (userId: string) => {
-//         if (window.confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) {
-//             try {
-//                 await deleteUser(userId, localStorage.getItem('token') || '');
-//                 fetchCustomers(); // Cập nhật lại danh sách sau khi xóa
-//             } catch (err) {
-//                 setError('Lỗi khi xóa khách hàng');
-//             }
-//         }
-//     };
+    const validate = () => {
+        const errors: { [key: string]: string } = {};
+        if (!userData.username) errors.username = 'Tên người dùng là bắt buộc';
+        if (!userData.email) errors.email = 'Email là bắt buộc';
+        if (!userData.password) errors.password = 'Mật khẩu là bắt buộc';
+        if (!userData.phone) errors.phone = 'Số điện thoại là bắt buộc';
+        if (!userData.role) errors.role = 'Quyền người dùng là bắt buộc';
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
-//     useEffect(() => {
-//         fetchCustomers(); // Lấy danh sách khách hàng khi component được mount
-//     }, []);
+    const handleSubmit = async () => {
+        if (!validate()) return;
 
-//     return (
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//             <h2 className="text-3xl font-semibold mb-6 text-gray-800">Quản Lý Khách Hàng</h2>
-//             {error && <p className="text-red-500 mb-4">{error}</p>}
-//             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-//                 <table className="min-w-full divide-y divide-gray-200 bg-white">
-//                     <thead className="bg-gray-50">
-//                         <tr>
-//                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                                 Tên
-//                             </th>
-//                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                                 Email
-//                             </th>
-//                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                                 Số điện thoại
-//                             </th>
-//                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                                 Địa chỉ
-//                             </th>
-//                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                                 Địa chỉ
-//                             </th>
-//                             <th scope="col" className="relative px-6 py-3">
-//                                 <span className="sr-only">Hành động</span>
-//                             </th>
-//                         </tr>
-//                     </thead>
-//                     <tbody className="bg-white divide-y divide-gray-200">
-//                         {customers.map((customer) => (
-//                             <tr key={customer.id} className="hover:bg-gray-50">
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-//                                     {customer.username}
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-//                                     {customer.email}
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-//                                     {customer.phone}
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-//                                     {customer.address}
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-//                                     {customer.role}
-//                                 </td>
-//                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-//                                     <button
-//                                         className="text-red-600 hover:text-red-900"
-//                                         onClick={() => handleDelete(customer.id)}
-//                                     >
-//                                         Xóa
-//                                     </button>
-//                                 </td>
-//                             </tr>
-//                         ))}
-//                     </tbody>
-//                 </table>
-//             </div>
-//         </div>
-//     );
-// };
+        if (selectedUser) {
+            await updateUser(selectedUser.id, userData);
+            setSelectedUser(null);
+        } else {
+            await addUser(userData);
+        }
+        setUserData({
+            username: '',
+            password: '',
+            email: '',
+            address: '',
+            role: '1',
+            phone: '',
+            dateCreated: new Date(),
+            IdVoucher: [],
+        });
+        setValidationErrors({});
+    };
 
-// export default CustomerList;
+    const handleDeleteUser = async (id: string | number) => {
+        await deleteUser(id);
+    };
+
+    // Lọc người dùng theo vai trò
+    const customers = users.filter(user => user.role === '0');
+    const employees = users.filter(user => user.role === '1' || user.role === '2'); // Nhân viên và Quản lý
+
+    return (
+        <div className="p-6 bg-gray-50 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4">Quản lý Tài Khoản</h2>
+            {/* Form Người Dùng */}
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Tên người dùng"
+                    className="border rounded-lg p-2 mr-2 w-full"
+                    value={userData.username}
+                    onChange={(e) => setUserData({ ...userData, username: e.target.value })}
+                />
+                {validationErrors.username && <p className="text-red-500">{validationErrors.username}</p>}
+            </div>
+            <div className="mb-4">
+                <input
+                    type="email"
+                    placeholder="Email"
+                    className="border rounded-lg p-2 mr-2 w-full"
+                    value={userData.email}
+                    onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                />
+                {validationErrors.email && <p className="text-red-500">{validationErrors.email}</p>}
+            </div>
+            <div className="mb-4">
+                <input
+                    type="password"
+                    placeholder="Mật khẩu"
+                    className="border rounded-lg p-2 mr-2 w-full"
+                    value={userData.password}
+                    onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+                />
+                {validationErrors.password && <p className="text-red-500">{validationErrors.password}</p>}
+            </div>
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Số điện thoại"
+                    className="border rounded-lg p-2 mr-2 w-full"
+                    value={userData.phone}
+                    onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                />
+                {validationErrors.phone && <p className="text-red-500">{validationErrors.phone}</p>}
+            </div>
+            <div className="mb-4">
+                <select
+                    className="border rounded-lg p-2 mr-2 w-full"
+                    value={userData.role}
+                    onChange={(e) => setUserData({ ...userData, role: e.target.value })}
+                >
+                    <option value="0">Người dùng</option>
+                    <option value="1">Nhân viên</option>
+                    <option value="2">Quản lý</option>
+                </select>
+                {validationErrors.role && <p className="text-red-500">{validationErrors.role}</p>}
+            </div>
+            <button
+                onClick={handleSubmit}
+                className="bg-blue-500 text-white rounded-lg px-4 py-2"
+            >
+                {selectedUser ? 'Cập nhật' : 'Thêm'}
+            </button>
+            {loading && <p>Loading...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            
+            {/* Bảng Khách Hàng */}
+            <h3 className="text-xl font-semibold mb-2">Khách Hàng</h3>
+            <table className="min-w-full bg-white border rounded-lg shadow-md mt-2">
+                <thead>
+                    <tr className="bg-gray-200">
+                        <th className="py-2 px-4 border-b">Tên người dùng</th>
+                        <th className="py-2 px-4 border-b">Email</th>
+                        <th className="py-2 px-4 border-b">Số điện thoại</th>
+                        <th className="py-2 px-4 border-b">Quyền</th>
+                        <th className="py-2 px-4 border-b">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {customers.map(user => (
+                        <tr key={user.id} className="hover:bg-gray-100 text-center">
+                            <td className="py-2 px-4 border-b">{user.username}</td>
+                            <td className="py-2 px-4 border-b">{user.email}</td>
+                            <td className="py-2 px-4 border-b">{user.phone}</td>
+                            <td className="py-2 px-4 border-b">{user.role === '0' ? 'Người dùng' : user.role === '1' ? 'Nhân viên' : 'Quản lý'}</td>
+                            <td className="py-2 px-4 border-b flex gap-2">
+                                <button
+                                    onClick={() => setSelectedUser(user)}
+                                    className="text-blue-500 hover:underline"
+                                >
+                                    Sửa
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteUser(user.id)}
+                                    className="text-red-500 hover:underline ml-2"
+                                >
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {/* Bảng Nhân Viên */}
+            <h3 className="text-xl font-semibold mt-4 mb-2">Nhân Viên</h3>
+            <table className="min-w-full bg-white border rounded-lg shadow-md mt-2">
+                <thead>
+                    <tr className="bg-gray-200">
+                        <th className="py-2 px-4 border-b">Email</th>
+                        <th className="py-2 px-4 border-b">Số điện thoại</th>
+                        <th className="py-2 px-4 border-b">Quyền</th>
+                        <th className="py-2 px-4 border-b">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {employees.map(user => (
+                        <tr key={user.id} className="hover:bg-gray-100 text-center">
+                            <td className="py-2 px-4 border-b">{user.email}</td>
+                            <td className="py-2 px-4 border-b">{user.phone}</td>
+                            <td className="py-2 px-4 border-b">{user.role === '0' ? 'Người dùng' : user.role === '1' ? 'Nhân viên' : 'Quản lý'}</td>
+                            <td className="py-2 px-4 border-b flex gap-2">
+                                <button
+                                    onClick={() => setSelectedUser(user)}
+                                    className="text-blue-500 hover:underline"
+                                >
+                                    Sửa
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteUser(user.id)}
+                                    className="text-red-500 hover:underline ml-2"
+                                >
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+export default AccountList;

@@ -4,7 +4,8 @@ export interface IUser {
     password: string;
     email: string;
     address: string;
-    role: boolean;
+    role: string;
     phone: string;
     dateCreated: Date;
+    IdVoucher: (string | number)[];
 }

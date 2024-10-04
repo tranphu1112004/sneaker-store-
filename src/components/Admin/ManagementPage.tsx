@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { ColorCT } from '../../context/ColorContext';
-import { CategoryCT } from '../../context/CategoryContex';
+import { CategoryCT } from '../../context/CategoryContext';
 import { BrandCT } from '../../context/BrandContext';
 
 const ITEMS_PER_PAGE = 6; // Số lượng mục hiển thị trên mỗi trang

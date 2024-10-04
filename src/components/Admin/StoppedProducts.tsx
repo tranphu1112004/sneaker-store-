@@ -4,7 +4,7 @@ import { ProductCT } from '../../context/ProductContext';
 import { ColorCT } from '../../context/ColorContext';
 import { SizeCT } from '../../context/SizeContext';
 import { BrandCT } from '../../context/BrandContext';
-import { CategoryCT } from '../../context/CategoryContex';
+import { CategoryCT } from '../../context/CategoryContext';
 import { Link } from 'react-router-dom';
 
 const PRODUCTS_PER_PAGE = 5; // 5 sản phẩm mỗi trang

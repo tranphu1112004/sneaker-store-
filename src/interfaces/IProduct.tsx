@@ -14,7 +14,6 @@ export interface IProduct {
     reviews: Review[];
     sale: boolean;
     quantity: number;
-    sales: number;
     isActive: boolean;
     idVochond: string;
 }
@@ -26,6 +25,7 @@ export interface Review {
     createdAt: string;
     user: User;
 }
+export type formReview = Pick<Review ,'rating'|'comment'|'createdAt'>
 
 export interface User {
     id: string | number;
@@ -52,14 +52,7 @@ export interface ICategory {
     id: string;
     name: string;
 }
-export interface IVoucher {
-    id: string;
-    code: string;
-    discountPercentage: number; // % discount
-    minimumSpend: number; // Minimum required spend to apply the voucher
-    expiryDate: string;
-    isActive: boolean;
-  }
+
 
 export type FormType = Pick<
   IProduct,

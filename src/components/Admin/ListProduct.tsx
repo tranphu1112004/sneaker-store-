@@ -5,7 +5,7 @@ import { ColorCT } from '../../context/ColorContext';
 import { SizeCT } from '../../context/SizeContext';
 import { BrandCT } from '../../context/BrandContext';
 import { Link } from 'react-router-dom';
-import { CategoryCT } from '../../context/CategoryContex';
+import { CategoryCT } from '../../context/CategoryContext';
 
 const PRODUCTS_PER_PAGE = 6;
 
@@ -20,9 +20,8 @@ const ListProduct: React.FC = () => {
         return <div className="text-center py-10">Đang tải...</div>;
     }
 
-    const { products, onDelete, onSubmitUpdate } = productContext;
+    const { products, onDelete } = productContext;
     const { brands } = brandContext;
-    const { categories } = categoryContext;
 
     const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -62,10 +61,10 @@ const ListProduct: React.FC = () => {
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ảnh</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thương hiệu</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh mục</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá Sale</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lượng hàng</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lượt mua</th>
                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Hành động</th>
                             </tr>
@@ -73,7 +72,7 @@ const ListProduct: React.FC = () => {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {paginatedProducts.map((product: IProduct) => {
                                 const brand = brands.find(b => b.id === product.brandId)?.name || 'Không xác định';
-                                const category = categories.find(c => c.id === product.category)?.name || 'Không xác định';
+                                // const category = categories.find(c => c.id === product.category)?.name || 'Không xác định';
 
                                 return (
                                     <tr key={product.id} className="hover:bg-gray-50">
@@ -89,13 +88,17 @@ const ListProduct: React.FC = () => {
                                             )}
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{brand}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{category}</td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${product.price}</td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${product.pricenew}</td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {product.sale ? <p>Đang giảm giá</p> : <p>Không giảm giá</p>}
                                         </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{product.sales}</td>
+                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock > 0 ?(
+                                            <p className="text-gray-500">{product.stock}</p>
+                                        ):(
+                                             <p className="text-gray-500">Hết hàng</p>
+                                        )}</td>
+                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{product.quantity}</td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium flex items-center justify-center space-x-2">
                                             <button
                                                 onClick={() => toggleProductStatus(product)}
